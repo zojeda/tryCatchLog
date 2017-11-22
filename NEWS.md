@@ -8,11 +8,9 @@ https://www.gnu.org/prep/standards/standards.html#Documentation
 This file describes the major changes of bug fixes in the package "tryCatchLog"
 
 --------------------------------------------------------------------------------
-
 ## upcoming (planned to be released in the next version)
 
-
-
+* wait and see...
 --------------------------------------------------------------------------------
 
 
