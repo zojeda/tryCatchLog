@@ -13,6 +13,12 @@ This file describes the major changes of bug fixes in the package "tryCatchLog"
 * wait and see...
 --------------------------------------------------------------------------------
 
+## Version 0.9.9 (Nov. 27, 2017)
+
+* Fixed bug #18 (duplicated errors, warnings and messages in stacked `tryCatchLog` calls
+
+
+
 ## Version 0.9.8 (Nov. 23, 2017)
 
 * Exported function `build.log.output` to create a single string suited as logging output from `last.tryCatchLog.result`
