@@ -13,11 +13,15 @@ This file describes the major changes of bug fixes in the package "tryCatchLog"
 * wait and see...
 --------------------------------------------------------------------------------
 
-## Version 0.9.9 (Nov. 27, 2017)
+## Version 0.9.9 (Dec. 02, 2017)
 
 * Fixed bug #18 (duplicated errors, warnings and messages in stacked `tryCatchLog` calls
 * Fixed incorrect documentation of `last.tryCatch.result` (wrong msg.text column name)
-* Open issue: R CMD check results in one warning (false positive: missing documentation entries for `build.log.output`
+* Open issues:
+  - R CMD check results in one warning (false positive: missing documentation entries for `build.log.output`
+  - stacked tryCatchLog calls ignore dump and silent params after first handling
+  - logging of dump file does not work anymore
+
 
 
 
