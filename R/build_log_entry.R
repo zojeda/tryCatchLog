@@ -30,7 +30,7 @@
 #' @return An object of class \code{tryCatchLog.log.entry} and \code{\link{data.frame}} with one and the following columns:
 #'         \enumerate{
 #'         \item{severity    - the serverity level of the log entry (ERROR, WARNING, MESSAGE)}
-#'         \item{log.message - the message text of the log entry}
+#'         \item{msg.text    - the message text of the log entry}
 #'         \item{compact.stack.trace - the short stack trace containing only entries with source code
 #'                                     references down to line of code that has thrown the condition}
 #'         \item{full.stack.trace    - the full stack trace with all calls down to the line of code that

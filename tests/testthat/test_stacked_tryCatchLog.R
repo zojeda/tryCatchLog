@@ -4,7 +4,7 @@ library(testthat)
 
 
 
-context("build.log.entry")
+context("stacked tryCatchLog")
 
 # set up test context
 options("tryCatchLog.dump.errors.to.file" = FALSE)

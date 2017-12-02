@@ -16,6 +16,8 @@ This file describes the major changes of bug fixes in the package "tryCatchLog"
 ## Version 0.9.9 (Nov. 27, 2017)
 
 * Fixed bug #18 (duplicated errors, warnings and messages in stacked `tryCatchLog` calls
+* Fixed incorrect documentation of `last.tryCatch.result` (wrong msg.text column name)
+* Open issue: R CMD check results in one warning (false positive: missing documentation entries for `build.log.output`
 
 
 

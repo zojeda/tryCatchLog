@@ -136,23 +136,10 @@ tryCatchLog <- function(expr,
     withCallingHandlers(expr,
                         error = function(e)
                         {
+
                           call.stack <- sys.calls()              # "sys.calls" within "withCallingHandlers" is like a traceback!
                           log.message <- e$message               # TODO: Should we use conditionMessage instead?
 
-                          # Save dump to allow post mortem debugging?
-                          # See"?dump.frames" on how to load and debug the dump in a later interactive R session!
-                          # See https://stackoverflow.com/questions/40421552/r-how-make-dump-frames-include-all-variables-for-later-post-mortem-debugging/40431711#40431711
-                          # why you should avoid dump.frames(to.file = TRUE)...
-                          if (dump.errors.to.file == TRUE)
-                          {
-                            dump.file.name <- format(Sys.time(), format = "dump_%Y%m%d_%H%M%S")   # use %OS3 (= seconds incl. milliseconds) for finer precision
-                            utils::dump.frames()
-                            save.image(file = paste0(dump.file.name, ".rda"))
-                            # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17116
-                            # wait for the enhanced version to be released in spring 2017
-                            # dump.frames(dumpto = dump.file.name, to.file = TRUE, include.GlobalEnv = TRUE)  # test it now by using "dump.frames.dev()"
-                            log.message <- paste0(log.message, "\nCall stack environments dumped into file: ", dump.file.name, ".rda")
-                          }
 # x <<- sys.calls() # just for internal debugging purposes
                           # TODO the following lines of code are repeated three times. Extract into function
                           #      But: futile.logger does still not support to pass the severity level as parameter.
@@ -161,11 +148,31 @@ tryCatchLog <- function(expr,
                                                        log.message,
                                                        call.stack,
                                                        1)
-                          log.msg <- build.log.output(log.entry)
-                          futile.logger::flog.error(log.msg)   # ignore  function calls to this this handler
 
-                          append.to.last.tryCatchLog.result(log.entry)
-                        },
+                          if (!is.duplicated.log.entry(log.entry)) {
+
+                            log.msg <- build.log.output(log.entry)
+                            futile.logger::flog.error(log.msg)   # ignore  function calls to this this handler
+
+                            # Save dump to allow post mortem debugging?
+                            # See"?dump.frames" on how to load and debug the dump in a later interactive R session!
+                            # See https://stackoverflow.com/questions/40421552/r-how-make-dump-frames-include-all-variables-for-later-post-mortem-debugging/40431711#40431711
+                            # why you should avoid dump.frames(to.file = TRUE)...
+                            if (dump.errors.to.file == TRUE)
+                            {
+                              dump.file.name <- format(Sys.time(), format = "dump_%Y%m%d_%H%M%S")   # use %OS3 (= seconds incl. milliseconds) for finer precision
+                              utils::dump.frames()
+                              save.image(file = paste0(dump.file.name, ".rda"))
+                              # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17116
+                              # wait for the enhanced version to be released in spring 2017
+                              # dump.frames(dumpto = dump.file.name, to.file = TRUE, include.GlobalEnv = TRUE)  # test it now by using "dump.frames.dev()"
+                              log.message <- paste0(log.message, "\nCall stack environments dumped into file: ", dump.file.name, ".rda")
+                            }
+
+                            append.to.last.tryCatchLog.result(log.entry)
+                          }
+
+                        },  # error handler
                         warning = function(w)
                         {
 
@@ -174,10 +181,15 @@ tryCatchLog <- function(expr,
                                                        w$message,
                                                        call.stack,
                                                        1)
-                          log.msg <- build.log.output(log.entry)
-                          futile.logger::flog.warn(log.msg)      # ignore last function calls to this handler
 
-                          append.to.last.tryCatchLog.result(log.entry)
+                          if (!is.duplicated.log.entry(log.entry)) {
+
+                            log.msg <- build.log.output(log.entry)
+                            futile.logger::flog.warn(log.msg)      # ignore last function calls to this handler
+
+                            append.to.last.tryCatchLog.result(log.entry)
+
+                          }
 
                           # Suppresses the warning (logs it only)?
                           if (silent.warnings) {
@@ -195,10 +207,15 @@ tryCatchLog <- function(expr,
                                                        m$message,
                                                        call.stack,
                                                        1)
-                          log.msg <- build.log.output(log.entry)
-                          futile.logger::flog.info(log.msg)      # ignore last function calls to this handler
 
-                          append.to.last.tryCatchLog.result(log.entry)
+                          if (!is.duplicated.log.entry(log.entry)) {
+
+                            log.msg <- build.log.output(log.entry)
+                            futile.logger::flog.info(log.msg)      # ignore last function calls to this handler
+
+                            append.to.last.tryCatchLog.result(log.entry)
+
+                          }
 
                           if (silent.messages) {
                             invokeRestart("muffleMessage")            # the message will not bubble up now (logs it only)
