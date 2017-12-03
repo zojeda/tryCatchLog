@@ -79,3 +79,28 @@ test_that("multiple log entry rows work", {
 
 
 })
+
+
+
+test_that("include args do work", {
+
+  timestamp <- as.POSIXct("12/31/2010 9:00", format = "%m/%d/%Y %H:%M")
+  log.entry <- tryCatchLog:::build.log.entry(timestamp, "ERROR", "MESSAGE", NULL, "dump_123.rda", 0)
+
+  out <- build.log.output(log.entry, include.severity = TRUE, include.timestamp = TRUE)
+  expect_equal(out, "2010-12-31 09:00:00 [ERROR] MESSAGE\n\nCreated dump file: dump_123.rda\n\nCompact call stack:\n\n\nFull call stack:\n\n\n")
+
+  out <- build.log.output(log.entry, include.severity = FALSE, include.timestamp = TRUE)
+  expect_equal(out, "2010-12-31 09:00:00 MESSAGE\n\nCreated dump file: dump_123.rda\n\nCompact call stack:\n\n\nFull call stack:\n\n\n")
+
+
+  out <- build.log.output(log.entry)
+  expect_equal(out, "[ERROR] MESSAGE\n\nCreated dump file: dump_123.rda\n\nCompact call stack:\n\n\nFull call stack:\n\n\n")
+
+  out <- build.log.output(log.entry, include.severity = FALSE)
+  expect_false(grepl("ERROR", out, fixed = TRUE))
+
+  out <- build.log.output(log.entry, include.timestamp = TRUE)
+  expect_true(grepl("2010-12-31 09:00:00", out, fixed = TRUE))
+
+})
