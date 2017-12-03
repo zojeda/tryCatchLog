@@ -133,18 +133,36 @@ tryCatchLog <- function(expr,
   cond.handler = function(c)
   {
 
-    call.stack <- sys.calls()              # "sys.calls" within "withCallingHandlers" is like a traceback!
-    log.message <- c$message               # TODO: Should we use conditionMessage instead?
+    call.stack     <- sys.calls()          # "sys.calls" within "withCallingHandlers" is like a traceback!
+    log.message    <- c$message            # TODO: Should we use conditionMessage instead?
+    timestamp      <- Sys.time()
+    dump.file.name <- ""
 
     severity <-       if (inherits(c, "error"))   "ERROR"
-    else if (inherits(c, "warning")) "WARN"
-    else if (inherits(c, "message")) "INFO"
-    else stop(sprintf("Unsupported condition class %s!", class(c)))
+                 else if (inherits(c, "warning")) "WARN"
+                 else if (inherits(c, "message")) "INFO"
+                 else stop(sprintf("Unsupported condition class %s!", class(c)))
 
-    log.entry <- build.log.entry(severity,
-                                 log.message,
-                                 call.stack,
-                                 1)
+
+
+    # Save dump to allow post mortem debugging?
+    if (dump.errors.to.file == TRUE & severity == "ERROR")
+    {
+      # See"?dump.frames" on how to load and debug the dump in a later interactive R session!
+      # See https://stackoverflow.com/questions/40421552/r-how-make-dump-frames-include-all-variables-for-later-post-mortem-debugging/40431711#40431711
+      # why you should avoid dump.frames(to.file = TRUE)...
+      # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17116
+      # An enhanced version of "dump.frames" was released in spring 2017 but does still not fulfill the requirements of tryCatchLog:
+      # dump.frames(dumpto = dump.file.name, to.file = TRUE, include.GlobalEnv = TRUE)  # test it yourself!
+      dump.file.name <- format(timestamp, format = "dump_%Y%m%d_%H%M%S.rda")   # use %OS3 (= seconds incl. milliseconds) for finer precision
+      utils::dump.frames()
+      save.image(file = dump.file.name)
+
+    }
+
+
+
+    log.entry <- build.log.entry(timestamp, severity, log.message, call.stack, dump.file.name, omit.call.stack.items = 1)
 
     if (!is.duplicated.log.entry(log.entry)) {
 
@@ -156,23 +174,26 @@ tryCatchLog <- function(expr,
              INFO  = flog.info(log.msg)
       )
 
-      # Save dump to allow post mortem debugging?
-      if (dump.errors.to.file == TRUE & severity == "ERROR")
-      {
-        # See"?dump.frames" on how to load and debug the dump in a later interactive R session!
-        # See https://stackoverflow.com/questions/40421552/r-how-make-dump-frames-include-all-variables-for-later-post-mortem-debugging/40431711#40431711
-        # why you should avoid dump.frames(to.file = TRUE)...
-        dump.file.name <- format(Sys.time(), format = "dump_%Y%m%d_%H%M%S")   # use %OS3 (= seconds incl. milliseconds) for finer precision
-        utils::dump.frames()
-        save.image(file = paste0(dump.file.name, ".rda"))
 
-        # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17116
-        # wait for the enhanced version to be released in spring 2017
-        # dump.frames(dumpto = dump.file.name, to.file = TRUE, include.GlobalEnv = TRUE)  # test it now by using "dump.frames.dev()"
-        log.message <- paste0(log.message, "\nCall stack environments dumped into file: ", dump.file.name, ".rda")
-      }
 
       append.to.last.tryCatchLog.result(log.entry)
+
+
+
+      # Suppresses the warning (logs it only)?
+      if (silent.warnings & severity == "WARN") {
+        invokeRestart("muffleWarning")           # the warning will NOT bubble up now!
+      } else {
+        # The warning bubbles up and the execution resumes only if no warning handler is established
+        # higher in the call stack via try or tryCatch
+      }
+
+      if (silent.messages & severity == "INFO") {
+        invokeRestart("muffleMessage")            # the message will not bubble up now (logs it only)
+      } else {
+        # Just to make it clear here: The message bubbles up now
+      }
+
     }
 
   }

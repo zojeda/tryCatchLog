@@ -13,14 +13,16 @@ This file describes the major changes of bug fixes in the package "tryCatchLog"
 * wait and see...
 --------------------------------------------------------------------------------
 
-## Version 0.9.9 (Dec. 02, 2017)
+## Version 0.9.9 (Dec. 03, 2017)
 
 * Fixed bug #18 (duplicated errors, warnings and messages in stacked `tryCatchLog` calls
-* Fixed incorrect documentation of `last.tryCatch.result` (wrong msg.text column name)
+* Improved documentation of `last.tryCatch.result`
 * Open issues:
   - R CMD check results in one warning (false positive: missing documentation entries for `build.log.output`
   - stacked tryCatchLog calls ignore dump and silent params after first handling
-  - logging of dump file does not work anymore
+  - stacked trys with error probably bubble up unintentionally. Check this!
+  - build.log.output: Add arguments for incl.timestamp + incl.severity later (redundant output if a logging framework is used!)
+  - rename tryCatchLog argument "dump.errors.to.file" to "dump.to.file" or similar (more precise name required!)
 
 
 

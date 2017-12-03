@@ -38,6 +38,8 @@
 #'               as \code{log.results} argument.
 build.log.output <- function(log.results, include.full.call.stack = TRUE) {
 
+  # TODO Add arguments for incl.timestamp + incl.severity later (redundant output if a logging framework is used!)
+
   stopifnot("data.frame" %in% class(log.results))
 
 
@@ -50,6 +52,8 @@ build.log.output <- function(log.results, include.full.call.stack = TRUE) {
     res <- paste0(res,
                  "[", log.results$severity[i], "] ", log.results$msg.text[i],
                  "\n\n",
+                 if (nchar(log.results$dump.file.name[i]) > 0)
+                   paste0("Created dump file: ", log.results$dump.file.name[i], "\n\n"),
                  "Compact call stack:",
                  "\n",
                  log.results$compact.stack.trace[i],
