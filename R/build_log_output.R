@@ -50,7 +50,7 @@
 #' @note         Supports also a single row created by the package internal function \code{\link{build.log.entry}}
 #'               as \code{log.results} argument.
 build.log.output <- function(log.results,
-                             include.full.call.stack = TRUE,
+                             include.full.call.stack = FALSE,
                              include.severity = TRUE,
                              include.timestamp = FALSE,
                              use.platform.newline = FALSE) {
